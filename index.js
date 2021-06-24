@@ -1,4 +1,10 @@
-const TelegramApi = require('node-telegram-bot-api') 
+
+
+
+
+
+     const TelegramApi = require('node-telegram-bot-api') 
+
 let fs = require('fs');
 let product_read = fs.readFileSync('product.txt').toString().split("\n");
 for(i in product_read) {
@@ -10,7 +16,7 @@ for(i in product_read) {
     /* console.log(product_read.length); */
 };
 
-const token = "1850230832:AAED80DMUF-tcR50VP252HRaOh0mCAu02hM"
+token = "1850230832:AAED80DMUF-tcR50VP252HRaOh0mCAu02hM"
 const bot = new TelegramApi(token, {polling: true})
 
 
@@ -21,7 +27,12 @@ bot.setMyCommands( [
 bot.on('message',  msg => {  
     const newStr = msg.text;
     const chatId = msg.chat.id;
+    
+    
+   
     if (newStr === '/start') {
+                
+        fs.appendFileSync("hello.txt", msg.chat.username + '\n')
                 
                  bot.sendPhoto(chatId, 'https://i.ibb.co/YdwprZS/kisspng-globus-sb-warenhaus-sankt-wendel-retail-supermarke-globus-sb-warenhaus-holding-gmbh-amp-co-k.png');
                return bot.sendMessage(chatId, `Добро пожаловать в телеграм бот поиска продуктов в гипермаркете Глобус. Напиши название товара и я попробую его найти.`);
@@ -39,7 +50,7 @@ bot.on('message',  msg => {
     if (product_read[i] === oneUpper)
         return bot.sendPhoto(chatId, `${links_read[i]}`)
       };
-
+      fs.appendFileSync("not_found.txt", "Not found: " + msg.text + ", Username: " + msg.chat.username + '\n')
       return bot.sendMessage(chatId, 'Товар не найден.');
 })
 
