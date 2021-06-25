@@ -1,6 +1,6 @@
 
 
-
+const { token } = require('./config')
 
 
      const TelegramApi = require('node-telegram-bot-api') 
@@ -16,7 +16,7 @@ for(i in product_read) {
     /* console.log(product_read.length); */
 };
 
-token = "1850230832:AAED80DMUF-tcR50VP252HRaOh0mCAu02hM"
+
 const bot = new TelegramApi(token, {polling: true})
 
 
