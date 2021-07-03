@@ -1,4 +1,4 @@
 config.js
 hello.txt
 not_found.txt
-node_modules/
+**node_modules
