@@ -35,9 +35,11 @@ function search_elem (product) {
 function update_elem (str) {
    
     const pin = '<img class="pin" src="./screen/pin_red.png" width="50%"  vspace="-90px" ></img>'
-    const length = str.length
-    const mergeStyle = str.substr(0, length - 7);
-    const result = mergeStyle + 'style="visibility: visible;">' + '\n' + pin + '</div>'
+    const style = 'style="visibility: visible;"'
+    console.log(str)
+    const mergeStyle = str.replace("></div>", '');
+    console.log("Удалил div " + mergeStyle)
+    const result = mergeStyle + style + ">" + pin + '</div>'
     console.log("Обновил html " + result)
     for (var i=0, len=html_read.length; i<len; i++) {
         
@@ -47,10 +49,12 @@ function update_elem (str) {
     }; 
 
     function delElem () {
-        const pin = '<img class="pin" src="./screen/pin_red.png" width="50%"  vspace="-90px" >'
+        console.log("запускаю удаление")
+        const style = 'style="visibility: visible;"'
+        const pin = '<img class="pin" src="./screen/pin_red.png" width="50%"  vspace="-90px" ></img>'
         for (var i = 0, len=html_read.length; i<len; i++) {
-        if ( html_read[i].match('class="display = none"') != null) 
-        return html_read[i] = `${html_read[i]}`.replace('class="display = none"', "").replace(pin, '')
+        if ( html_read[i].match(pin) != null) 
+        return html_read[i] = `${html_read[i]}`.replace(style , "").replace(pin , "")
         }    
     }
    
@@ -71,11 +75,11 @@ async function returnSide(str) {
         const product =  str;
         console.log( "Присвоил переменную str ")
         const browser = await puppeteer.launch();
-        console.log("запустился") 
+        console.log("запустился Браузер поиска крыла") 
         page = await browser.newPage();
-        console.log("создал страницу") 
+        console.log("создал страницу поиска крыла") 
         await page.goto('file:///home/artem/workspace/js//telegram-globus-clone/telegram_globus/index.html', {waitUntil: 'load'});
-        console.log("открыл страницу")
+        console.log("открыл страницу поиска крыла")
         const newPage = await page.evaluate((product) => {
         return document.getElementById(product).parentNode.className;
         },product);
@@ -112,14 +116,16 @@ async function returnSide(str) {
     console.log("создал страницу")         
     await page.goto('file:///media/artem/5124137a-47d7-4780-96b5-3be3d8c9fbb4/workspace/js/telegram-globus-clone/telegram_globus/index_screen.html');    
     console.log("открыл страницу")
-    await page.screenshot({path: name, 'clip': side });    
+    await page.screenshot({path: name, 'clip': side });
+    console.log("сделал скрин")    
     await browser.close();
     
-    await fs.unlinkSync('index_screen.html')
+      await fs.unlinkSync('index_screen.html')  
     var oldPath = name
     var newPath = "./screen/" + name 
     fs.renameSync(oldPath, newPath)
-    
+    delElem()
+            
     console.log("удалил")
                                 
   };
@@ -150,8 +156,11 @@ bot.on('message',  msg => {
             const x = search_elem(n)
             const y = update_elem(x)         
             index_screen()
+            
+            
             callScreen(n);
-            delElem()
+
+           
             
     
   
