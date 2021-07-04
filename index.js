@@ -9,7 +9,21 @@ let html_read = fs.readFileSync('index.html').toString().split("\n");
  
 
 
+
+function transliterate(word) {
+    const keys = {
+      'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd',
+      'е': 'e', 'ё': 'e', 'ж': 'j', 'з': 'z', 'и': 'i',
+      'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n', 'о': 'o',
+      'п': 'p', 'р': 'r', 'с': 's', 'т': 't', 'у': 'u',
+      'ф': 'f', 'х': 'h', 'ц': 'c', 'ч': 'ch', 'ш': 'sh',
+      'щ': 'shch', 'ы': 'y', 'э': 'e', 'ю': 'u', 'я': 'ya'
+    }
+    return word.split("").map((char) => keys[char] || char).join("");
+  }
+
 function search_elem (product) {
+    console.log("Ищу " + product)
     for (var i=0, len=html_read.length; i<len; i++) {
       if ( html_read[i].match(product) != null)  
       return html_read[i]  
@@ -19,10 +33,12 @@ function search_elem (product) {
 
 
 function update_elem (str) {
+   
 
     const length = str.length
     const mergeStyle = str.substr(0, length - 7);
     const result = mergeStyle + 'class="display = none"' +'></div>'
+    console.log("Обновил html " + result)
     for (var i=0, len=html_read.length; i<len; i++) {
         
         if ( html_read[i].match(str) != null)  
@@ -40,6 +56,7 @@ function update_elem (str) {
    
  
 function index_screen () {
+    console.log("Создаю index_screen.html")
     const htmlReadUpdate = html_read;
     for (var i=0, len=html_read.length; i<len; i++){
      fs.appendFileSync("index_screen.html", htmlReadUpdate[i] + '\n')
@@ -49,16 +66,21 @@ function index_screen () {
 
 
 async function returnSide(str) {
-        const product = str;
+    console.log( "Ищу крыло "  + str)
+        const product =  str;
+        console.log( "Присвоил переменную str ")
         const browser = await puppeteer.launch();
+        console.log("запустился") 
         page = await browser.newPage();
-        await page.goto('file:///home/artem/workspace/js/telegram-globus/index.html', {waitUntil: 'load'});
+        console.log("создал страницу") 
+        await page.goto('file:///home/artem/workspace/js//telegram-globus-clone/telegram_globus/index.html', {waitUntil: 'load'});
+        console.log("открыл страницу")
         const newPage = await page.evaluate((product) => {
         return document.getElementById(product).parentNode.className;
         },product);
-        await browser.close();
-        console.log(newPage)
-       
+        console.log( "Нашел крыло " + newPage)
+        
+              
         if (newPage === "north__plates") {          
             return  {'x': 750, 'y': 700, 'width': 2250, 'height': 900};
         };
@@ -76,6 +98,8 @@ async function returnSide(str) {
         }
                        
 };
+
+
 
  async function screen(name, side) {  
     console.log("SCREEN Получил крыло " + side)
@@ -121,11 +145,11 @@ bot.on('message',  msg => {
                  bot.sendPhoto(chatId, 'https://i.ibb.co/YdwprZS/kisspng-globus-sb-warenhaus-sankt-wendel-retail-supermarke-globus-sb-warenhaus-holding-gmbh-amp-co-k.png');
                return bot.sendMessage(chatId, `Добро пожаловать в телеграм бот поиска продуктов в гипермаркете Глобус. Напиши название товара и я попробую его найти.`);
             };
-
-            const x = search_elem(newStr)
+            const n = transliterate(newStr)
+            const x = search_elem(n)
             const y = update_elem(x)         
-            index_screen(y)
-            callScreen(newStr);
+            index_screen()
+            callScreen(n);
             delElem()
             
     
@@ -138,7 +162,7 @@ bot.on('message',  msg => {
    
  for (var i=0, len=product_read.length; i<len; i++) {
     if (product_read[i] === oneUpper)
-        return bot.sendPhoto(chatId, './screen/' + newStr + '.png')
+        return bot.sendPhoto(chatId, './screen/' + n + '.png')
       };
       fs.appendFileSync("not_found.txt", "Not found: " + msg.text + ", Username: " + msg.chat.username + '\n')
       return bot.sendMessage(chatId, 'Товар не найден.');
