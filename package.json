@@ -14,7 +14,7 @@
     "micro-bot": "^2.5.3",
     "node-telegram-bot-api": "^0.53.0",
     "nodemon": "^2.0.9",
-    "puppeteer": "^10.0.0"
+    "puppeteer": "^10.1.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.14.5",

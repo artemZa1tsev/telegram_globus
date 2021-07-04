@@ -8,8 +8,6 @@ let html_read = fs.readFileSync('index.html').toString().split("\n");
  
 
 
-
-
 function search_elem (product) {
     for (var i=0, len=html_read.length; i<len; i++) {
       if ( html_read[i].match(product) != null)  
@@ -41,7 +39,6 @@ function index_screen () {
 
 
 async function returnSide(str) {
-        console.log(str)
         const product = str;
         const browser = await puppeteer.launch();
         page = await browser.newPage();
@@ -79,9 +76,9 @@ function sideMap (newPage) {
 console.log(sideMap("north__plates"))
 
 
- async function screen(side, name) {  
-    console.log(side)
-    console.log(name)
+ async function screen(name, side) {  
+    console.log("SCREEN Получил крыло " + side)
+    console.log("SCREEN Получил имя " + name)
     name = name + ".png"                               
     const browser = await puppeteer.launch();       
     const page = await browser.newPage();           
@@ -96,6 +93,15 @@ console.log(sideMap("north__plates"))
                             
   };
 
+  async function go (str) {
+    
+     const a = await returnSide(str);
+     console.log(a)
+     const b = await screen(str, a)
+    
+  }
+
+  
 
  
 
@@ -116,15 +122,14 @@ bot.on('message',  msg => {
             };
 
             const x = search_elem(newStr)
-            console.log(x)
+            console.log("Нашел элемент " +x)
             const y = update_elem(x)
-            console.log(y)
+            console.log("Обновил элемент " + y)
             index_screen(y)
-            console.log(newStr)
-            const s =  returnSide(newStr).then(sideMap);
-           
-            console.log(s)
-            screen(s, newStr)
+            const s =  go(newStr);
+            console.log("go " + s)
+            return
+            
   
     const text = newStr.toLowerCase(); 
     const oneUpper = text.charAt(0).toUpperCase() + text.slice(1);
