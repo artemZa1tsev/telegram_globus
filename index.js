@@ -2,6 +2,7 @@ const { token } = require('./config')
 const TelegramApi = require('node-telegram-bot-api') 
 const puppeteer = require('puppeteer');
 let fs = require('fs');
+const { join } = require('path');
 let product_read = fs.readFileSync('product.txt').toString().split("\n");
 let links_read = fs.readFileSync('links.txt').toString().split("\n");
 let html_read = fs.readFileSync('index.html').toString().split("\n");
@@ -18,22 +19,31 @@ function search_elem (product) {
 
 
 function update_elem (str) {
+
     const length = str.length
     const mergeStyle = str.substr(0, length - 7);
-    const result = mergeStyle + ' class="display = none"' +'></div>'
-    
+    const result = mergeStyle + 'class="display = none"' +'></div>'
     for (var i=0, len=html_read.length; i<len; i++) {
+        
         if ( html_read[i].match(str) != null)  
         return html_read[i] = result
       } 
     }; 
 
-
+    function delElem () {
+        for (var i = 0, len=html_read.length; i<len; i++) {
+        if ( html_read[i].match('class="display = none"') != null) 
+        return html_read[i] = `${html_read[i]}`.replace('class="display = none"', "")
+        }    
+    }
+   
+   
  
 function index_screen () {
     const htmlReadUpdate = html_read;
     for (var i=0, len=html_read.length; i<len; i++){
-        fs.appendFileSync("index_screen.html", htmlReadUpdate[i] + '\n')
+     fs.appendFileSync("index_screen.html", htmlReadUpdate[i] + '\n')
+     
     }
 };
 
@@ -46,64 +56,55 @@ async function returnSide(str) {
         const newPage = await page.evaluate((product) => {
         return document.getElementById(product).parentNode.className;
         },product);
-        return newPage
-             
-               
+        await browser.close();
+        console.log(newPage)
+       
+        if (newPage === "north__plates") {          
+            return  {'x': 750, 'y': 700, 'width': 2250, 'height': 900};
+        };
+        if (newPage === "western__plates") {
+            return  {'x': 0, 'y':0, 'width': 1000, 'height': 1500};
+        };
+        if (newPage === "eastern__plates") {
+            return {'x': 2800, 'y':0, 'width': 900, 'height': 1500};
+        };
+        if (newPage === "south__plate") {
+            return  {'x': 750, 'y': 0, 'width': 2250, 'height': 750};
+        }
+        else {
+            return {'x': 0, 'y':0, 'width': 3700, 'height': 1800};
+        }
+                       
 };
-
-
-
-
-
-function sideMap (newPage) {
-    if (newPage === "north__plates") {          
-        return  {'x': 750, 'y': 700, 'width': 2250, 'height': 900};
-    };
-    if (newPage === "western__plates") {
-        return {'x': 2800, 'y':0, 'width': 900, 'height': 1500};
-    };
-    if (newPage === "eastern__plates") {
-        return {'x': 0, 'y':0, 'width': 1000, 'height': 1500};
-    };
-    if (newPage === "south__plate") {
-        return  {'x': 750, 'y': 0, 'width': 2250, 'height': 750};
-    }
-    else {
-        return {'x': 0, 'y':0, 'width': 3700, 'height': 1800};
-    }
-}
-
-console.log(sideMap("north__plates"))
-
 
  async function screen(name, side) {  
     console.log("SCREEN Получил крыло " + side)
     console.log("SCREEN Получил имя " + name)
     name = name + ".png"                               
-    const browser = await puppeteer.launch();       
-    const page = await browser.newPage();           
-    await page.goto('file:///home/artem/workspace/js/telegram-globus/index_screen.html');        
+    const browser = await puppeteer.launch(); 
+    console.log("запустился")      
+    const page = await browser.newPage();  
+    console.log("создал страницу")         
+    await page.goto('file:///media/artem/5124137a-47d7-4780-96b5-3be3d8c9fbb4/workspace/js/telegram-globus-clone/telegram_globus/index_screen.html');    
+    console.log("открыл страницу")
     await page.screenshot({path: name, 'clip': side });    
     await browser.close();
-    fs.unlinkSync('index_screen.html')
+    
+    await fs.unlinkSync('index_screen.html')
     var oldPath = name
     var newPath = "./screen/" + name 
     fs.renameSync(oldPath, newPath)
     
-                            
+    console.log("удалил")
+                                
   };
 
-  async function go (str) {
-    
+  async function callScreen (str) {
      const a = await returnSide(str);
-     console.log(a)
-     const b = await screen(str, a)
+     return await screen(str, a)
     
   }
 
-  
-
- 
 
 const bot = new TelegramApi(token, {polling: true})
 
@@ -122,23 +123,22 @@ bot.on('message',  msg => {
             };
 
             const x = search_elem(newStr)
-            console.log("Нашел элемент " +x)
-            const y = update_elem(x)
-            console.log("Обновил элемент " + y)
+            const y = update_elem(x)         
             index_screen(y)
-            const s =  go(newStr);
-            console.log("go " + s)
-            return
+            callScreen(newStr);
+            delElem()
             
+    
   
     const text = newStr.toLowerCase(); 
     const oneUpper = text.charAt(0).toUpperCase() + text.slice(1);
+
     
    
    
  for (var i=0, len=product_read.length; i<len; i++) {
     if (product_read[i] === oneUpper)
-        return bot.sendPhoto(chatId, './screen/toilet-paper.png')
+        return bot.sendPhoto(chatId, './screen/' + newStr + '.png')
       };
       fs.appendFileSync("not_found.txt", "Not found: " + msg.text + ", Username: " + msg.chat.username + '\n')
       return bot.sendMessage(chatId, 'Товар не найден.');
