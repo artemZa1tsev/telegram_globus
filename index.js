@@ -34,10 +34,10 @@ function search_elem (product) {
 
 function update_elem (str) {
    
-
+    const pin = '<img class="pin" src="./screen/pin_red.png" width="50%"  vspace="-90px" ></img>'
     const length = str.length
     const mergeStyle = str.substr(0, length - 7);
-    const result = mergeStyle + 'class="display = none"' +'></div>'
+    const result = mergeStyle + 'style="visibility: visible;">' + '\n' + pin + '</div>'
     console.log("Обновил html " + result)
     for (var i=0, len=html_read.length; i<len; i++) {
         
@@ -47,9 +47,10 @@ function update_elem (str) {
     }; 
 
     function delElem () {
+        const pin = '<img class="pin" src="./screen/pin_red.png" width="50%"  vspace="-90px" >'
         for (var i = 0, len=html_read.length; i<len; i++) {
         if ( html_read[i].match('class="display = none"') != null) 
-        return html_read[i] = `${html_read[i]}`.replace('class="display = none"', "")
+        return html_read[i] = `${html_read[i]}`.replace('class="display = none"', "").replace(pin, '')
         }    
     }
    
@@ -87,7 +88,7 @@ async function returnSide(str) {
         if (newPage === "western__plates") {
             return  {'x': 0, 'y':0, 'width': 1000, 'height': 1500};
         };
-        if (newPage === "eastern__plates") {
+        if (newPage === "eastern") {
             return {'x': 2800, 'y':0, 'width': 900, 'height': 1500};
         };
         if (newPage === "south__plate") {
